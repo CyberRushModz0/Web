@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QUEEN RASHU MD WhatsApp Bot</title>
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    html, body {
+      height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212; color: #eee;
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+    /* Loading Screen */
+    #loading-screen { position: fixed; top: 0; left: 0; width:100vw; height:100vh;
+      background:#1e1e1e; display:flex; flex-direction:column;
+      justify-content:center; align-items:center; z-index:99999;
+    }
+    #loading-bar-container { width:80%; height:8px; background:#222; border-radius:5px;
+      overflow:hidden; margin-top:20px; box-shadow:0 0 10px #61dafb66;
+    }
+    #loading-bar { height:100%; width:0; background:#61dafb;
+      border-radius:5px 0 0 5px; transition: width 0.1s ease;
+    }
+    #loading-text { font-size:1.2rem; color:#61dafb; font-weight:700;
+      margin-top:10px; font-family:monospace;
+    }
+    /* Main Content */
+    #page-content { display:none; padding-top:60px;
+      flex:1; display:flex; flex-direction:column; overflow-y:auto;
+    }
+    header {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:1rem 2rem; background:#1e1e1e; box-shadow:0 2px 8px rgba(0,0,0,0.8);
+      position:sticky; top:0; z-index:100;
+    }
+    .logo { color:#61dafb; font-size:1.5rem; font-weight:700; letter-spacing:2px; }
+    nav { display:flex; gap:1.8rem; align-items:center; }
+    nav a { color:#eee; text-decoration:none; font-weight:500;
+      font-size:1rem; padding:0.5rem 0.8rem; border-radius:4px;
+      transition: background-color .3s;
+    }
+    nav a:hover { background-color:#333; }
+    .btn-primary {
+      background:#61dafb; color:#121212; padding:0.5rem 1.4rem;
+      border:none; border-radius:25px; font-weight:600;
+      cursor:pointer; transition: background .3s;
+      display:inline-flex; align-items:center; justify-content:center;
+    }
+    .btn-primary:hover { background:#21a1f1; }
+    .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; }
+    .hamburger div { width:25px; height:3px; background:#61dafb; border-radius:2px; }
+    .header-image { position:relative; width:100%; max-height:350px;
+      overflow:hidden; flex-shrink:0;
+    }
+    .header-image img { position:absolute; top:0; left:0;
+      width:100%; height:auto; object-fit:cover; opacity:0;
+      transition:opacity 1s ease-in-out; z-index:0;
+    }
+    .header-image img.active { opacity:1; position:relative; z-index:1; }
+    .animated-text-3d {
+      font-size:1.75rem; color:#fff; text-align:center; font-weight:900;
+      margin:1rem 0; letter-spacing:2px; text-transform:uppercase;
+      animation: fadeInUp 1s ease forwards; animation-delay:.5s;
+      opacity:0; transform:translateY(30px);
+      text-shadow:1px 1px 0 #0ff,2px 2px 0 #0cc,3px 3px 0 #099,4px 4px 8px #06f;
+    }
+    @keyframes fadeInUp { to { transform:translateY(0); opacity:1; } }
+    .typewriter-container { text-align:center; margin:1rem 0 2rem; }
+    .typewriter-text {
+      color:#fff; font-family:monospace; font-size:1.1rem;
+      white-space:nowrap; border-right:2px solid #fff; overflow:hidden;
+      width:0; margin:0 auto; max-width:220px;
+      animation: typing 3s steps(25) forwards, blink .75s step-end infinite;
+    }
+    @keyframes typing { from { width:0 } to { width:220px } }
+    @keyframes blink { 50% { border-color:transparent } }
+    .bot-intro-section, .about-section, .action-buttons {
+      background:#1a1a1a; color:#eee; padding:2rem 1rem; border-top:1px solid #333;
+    }
+    .about-section { padding:3rem 2rem; }
+    .intro-title, .about-title { color:#61dafb; font-weight:bold; }
+    .intro-title { font-size:1.5rem; margin-bottom:1rem; }
+    .about-title { font-size:1.8rem; text-transform:uppercase; margin-bottom:1rem; }
+    .intro-text, .about-text, .intro-warning { font-size:1rem; line-height:1.6; margin-bottom:1rem; }
+    .intro-warning { color:#ff6f61; font-weight:600; }
+    .about-highlight { font-size:1.1rem; color:#21f3a1; font-weight:600; margin-top:1rem; }
+    .action-buttons .btn-primary { padding:.6rem 1.8rem; font-size:1rem; border-radius:30px; }
+    .buttons-container { display:flex; justify-content:center; gap:1.5rem; flex-wrap:wrap; max-width:800px; margin:0 auto; }
+    .pairing-site-text { text-align:center; font-size:2rem; color:white; margin:2rem 0 1rem; letter-spacing:3px; user-select:none; }
+    .pair-button-container { text-align:center; margin-bottom:3rem; }
+    footer { background:#1e1e1e; padding:1rem 2rem; box-shadow:0 -2px 8px rgba(0,0,0,0.8); position:sticky; bottom:0; width:100%; flex-shrink:0; }
+    .footer-container { display:flex; justify-content:center; gap:2rem; }
+    .footer-btn { display:flex; align-items:center; gap:.5rem; background:#222; color:white;
+      padding:.5rem 1.2rem; border-radius:25px; font-weight:600; text-decoration:none; transition:background .3s, color .3s;
+    }
+    .footer-btn:hover { background:#61dafb; color:#121212; }
+    @media(max-width:768px){
+      nav { position:fixed; top:60px; right:0; background:#1e1e1e; flex-direction:column;
+        width:200px; transform:translateX(100%); transition:transform .3s; padding:1rem;
+        border-left:1px solid #333; height:calc(100vh - 60px);
+      }
+      nav.active { transform:translateX(0); }
+      nav a { width:100%; padding:1rem; font-size:1.2rem; }
+      .btn-primary, .footer-btn { width:100%; text-align:center; }
+      .hamburger { display:flex; }
+      .footer-container { flex-direction:column; gap:1rem; }
+    }
+
+    /* Comment Section */
+    .comment-section { padding:2rem; background:#1a1a1a; max-width:800px;
+      margin:3rem auto; border-top:1px solid #333; border-radius:8px;
+    }
+    .comment-section h2 { text-align:center; color:#61dafb; margin-bottom:1rem; }
+    #comment-form { display:flex; flex-direction:column; gap:1rem; }
+    #comment-form input, #comment-form textarea {
+      padding:.8rem; background:#121212; border:1px solid #444; border-radius:5px;
+      color:#eee; font-size:1rem;
+    }
+    #comment-form button { align-self:flex-start; padding:.6rem 1.5rem; }
+    #comment-list { margin-top:2rem; }
+    .comment { background:#1e1e1e; padding:1rem; margin-bottom:1rem; border-radius:6px;
+      border-left:4px solid #61dafb;
+    }
+    .comment-email { font-size:.9rem; color:#61dafb; margin-bottom:.3rem; }
+    .comment-text { font-size:1rem; color:#eee; }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div id="loading-text">0%</div>
+    <div id="loading-bar-container">
+      <div id="loading-bar"></div>
+    </div>
+  </div>
+
+  <!-- Main Page -->
+  <div id="page-content">
+    <header>
+      <div class="logo">QUEEN-RASHU-MD</div>
+      <nav id="nav-menu">
+        <a href="#">Home</a>
+        <a href="#">Features</a>
+        <a href="https://wa.me//+94727319036?text=Rashu🫂😶">Contact</a>
+      </nav>
+      <div class="hamburger" id="hamburger">
+        <div></div><div></div><div></div>
+      </div>
+    </header>
+
+    <div class="header-image">
+      <img id="img1" src="https://res.cloudinary.com/df2rnoijw/image/upload/v1751868519/ab8mvlqnxdk9lwgd47ax.jpg" class="active" />
+      <img id="img2" src="https://res.cloudinary.com/df2rnoijw/image/upload/v1751872570/ue3hfrrqwxnqzjqpbjeo.jpg" />
+    </div>
+
+    <h3 class="animated-text-3d">WELCOME QUEEN RASHU MD</h3>
+    <div class="typewriter-container">
+      <p class="typewriter-text">© ᴅᴇᴠᴇʟᴏᴘ ʙʏ ɴɪᴘᴜɴ ʜᴀʀꜱʜᴀɴᴀ</p>
+    </div>
+
+    <section class="bot-intro-section">
+      <div class="bot-intro-container">
+        <h2 class="intro-title">Qᴜᴇᴇɴ ʀᴀꜱʜᴜ ᴍᴅ ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ ᴘʀᴏᴊᴇᴄᴛ</h2>
+        <p class="intro-text"><strong>RASHU</strong><br>QUEEN-RASHU-MD is a simple yet powerful WhatsApp bot developed using JavaScript (Node.js) and the Baileys Web API.</p>
+        <p class="intro-warning"><strong>Disclaimer:</strong><br>This is not an official WhatsApp product. Use at your own risk.</p>
+        <p class="intro-text">For detailed info & repo check:</p>
+        <p class="intro-text"><code>https://github.com/Zora-xmd/Zora-xmd-Mini-WA-Bot</code></p>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <div class="about-container">
+        <h2 class="about-title">📌 About Us</h2>
+        <p class="about-text">We are the developers of <strong>RASHU-MD</strong>—automation experts passionate about bots and innovation.</p>
+        <p class="about-text">Our mission: make WhatsApp smarter using JavaScript & Baileys API.</p>
+        <p class="about-text">QUEEN-RASHU-MD is community-driven, reliable, and regularly improved.</p>
+        <p class="about-highlight">🌟 Be part of our bot-building journey!</p>
+      </div>
+    </section>
+
+    <section class="action-buttons">
+      <div class="buttons-container">
+        <a href="https://github.com/CyberRushModz0" class="btn-primary">Rashu Github 🚀</a>
+        <a href="https://youtu.be/4ekjL8roi4?si=UarP128irrjfu4Uk" class="btn-primary">Deploy Video 📽️</a>
+        <a href="https://www.mediafire.com/file/zvmjefd5wfzue47/rashumd-main.7z/file" class="btn-primary">Download Files ⏬</a>
+      </div>
+    </section>
+
+    <div class="pairing-site-text">PAIRING SITE</div>
+    <div class="pair-button-container">
+      <a href="https://mrck-pair-icv0.onrender.com/" class="btn-primary">PAIR</a>
+    </div>
+
+    <!-- Comment Box -->
+    <section class="comment-section">
+      <h2>💬 Leave a Comment</h2>
+      <form id="comment-form">
+        <input type="email" id="email" placeholder="Enter your email" required>
+        <textarea id="comment" rows="4" placeholder="Write your comment..." required></textarea>
+        <button type="submit" class="btn-primary">Post Comment</button>
+      </form>
+      <div id="comment-list"></div>
+    </section>
+
+    <footer>
+      <div class="footer-container">
+        <a href="rashumodz0715@gmail.com" class="footer-btn">📧 Email</a>
+        <a href="https://whatsapp.com/channel/0029VaicB1MISTkGyQ7Bqe23" target="_blank" class="footer-btn">▶ Channel</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Loading bar
+    let progress = 0;
+    const loadingBar = document.getElementById('loading-bar');
+    const loadingText = document.getElementById('loading-text');
+    const loadingScreen = document.getElementById('loading-screen');
+    const page = document.getElementById('page-content');
+    const interval = setInterval(() => {
+      if (progress < 100) {
+        progress++;
+        loadingBar.style.width = `${progress}%`;
+        loadingText.innerText = `${progress}%`;
+      } else {
+        clearInterval(interval);
+        loadingScreen.style.display = 'none';
+        page.style.display = 'flex';
+      }
+    }, 20);
+
+    // Hamburger menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const nav = document.getElementById('nav-menu');
+    hamburger.addEventListener('click', () => nav.classList.toggle('active'));
+
+    // Header image carousel
+    const imgs = document.querySelectorAll('.header-image img');
+    let current = 0;
+    setInterval(() => {
+      imgs[current].classList.remove('active');
+      current = (current + 1) % imgs.length;
+      imgs[current].classList.add('active');
+    }, 4000);
+
+    // Typewriter reset
+    const tw = document.querySelector('.typewriter-text');
+    setInterval(() => {
+      tw.style.animation = 'none';
+      void tw.offsetWidth;
+      tw.style.animation = null;
+    }, 4000);
+
+    // Comment logic
+    const commentList = document.getElementById('comment-list');
+    const saved = JSON.parse(localStorage.getItem('comments') || '[]');
+
+    function render() {
+      commentList.innerHTML = '';
+      saved.forEach(c => {
+        const d = document.createElement('div');
+        d.className = 'comment';
+        d.innerHTML = `<div class="comment-email">${c.email}</div>
+                       <div class="comment-text">${c.text}</div>`;
+        commentList.appendChild(d);
+      });
+    }
+
+    render();
+
+    document.getElementById('comment-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const text = document.getElementById('comment').value.trim();
+      if (!email || !text) return alert('Email+comment required!');
+      saved.push({ email, text });
+      localStorage.setItem('comments', JSON.stringify(saved));
+      document.getElementById('email').value = '';
+      document.getElementById('comment').value = '';
+      render();
+    });
+  </script>
+</body>
+</html>
