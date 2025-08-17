@@ -10,7 +10,7 @@
     },
   "dependencies": {
     "@whiskeysockets/baileys": "git+https://gitlab.com/amilaKumara/baileys-pmd",
-    "qrcode": "^1.5.4",
+    "qrcode": "^1.5.3",
     "awesome-phonenumber": "^7.5.0",
     "pino": "^9.7.0",
     "phone" : "^3.1.59",
